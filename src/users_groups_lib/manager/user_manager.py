@@ -1,7 +1,10 @@
 """Manage unix users in shell."""
-from shell_executor_lib import CommandManager
+from typing import Optional
+
+from shell_executor_lib import CommandManager, CommandError
 
 from users_groups_lib.entities import User
+from users_groups_lib.errors import UserPermissionError, GroupNotExistError, UserExistError
 
 
 class UserManager:
@@ -22,7 +25,6 @@ class UserManager:
         Returns:
             A list of the users in the shell.
 
-
         Raises:
             CommandError: If the exit code is not 0.
         """
@@ -38,3 +40,51 @@ class UserManager:
                 f"/bin/cat /etc/group | /bin/grep {data[4]} | /bin/cut -d: -f1", False))[0]))
 
         return user_list
+
+    async def add_user(self, name: str, home: str, shell: str, password: str, main_group: Optional[str] = None) -> None:
+        """Add a user to the system.
+
+        Args:
+            name: The username of the new user.
+            home: The home directory.
+            shell: The sell witch user use.
+            password: The password of the new user.
+            main_group: The main group of the new user, is optional.
+
+        Raises:
+            UserExistError: If the user already exist.
+            UserPermissionError: If you don't have sudo privileges to add user.
+            GroupNotExistError: If you try to add the new user in nonexistent group.
+            CommandError: If the exit code is not unexpected.
+        """
+        try:
+            await self.command_manager.execute_command(f"/sbin/useradd {name} -m -d {home} -s {shell}"
+                                                       f"{main_group if f' -g {main_group}' else ''}", True)
+            await self._change_password(name, password)
+        except CommandError as command_error:
+            match command_error.status_code:
+                case 1:
+                    raise UserPermissionError(name)
+                case 6:
+                    raise GroupNotExistError(name)
+                case 9:
+                    raise UserExistError(name)
+            raise command_error
+
+    async def _change_password(self, name: str, password: str) -> None:
+        """Change the password of user.
+
+        Args:
+            name: The username of the user to change password.
+            password: The new password.
+
+        Raises:
+            UserPermissionError: If you don't have sudo privileges to manage user.
+            CommandError: If the exit code is not unexpected.
+        """
+        try:
+            await self.command_manager.execute_command(f"/bin/passwd {name}", True, password, password)
+        except CommandError as command_error:
+            if command_error.status_code == 1:
+                raise UserPermissionError(name)
+            raise command_error

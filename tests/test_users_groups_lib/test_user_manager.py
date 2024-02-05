@@ -3,8 +3,10 @@
 import unittest
 from unittest import mock
 
-from mock_users_groups_lib import mock_users_list, mock_group_name_list
-from users_groups_lib import UserManager, User
+from shell_executor_lib import CommandError
+
+from mock_users_groups_lib import mock_users_list, mock_group_name_list, mock_command_executor_method
+from users_groups_lib import UserManager, User, UserPermissionError, UserExistError, GroupNotExistError
 
 
 class MockCommandManager(unittest.IsolatedAsyncioTestCase):
@@ -15,9 +17,42 @@ class MockCommandManager(unittest.IsolatedAsyncioTestCase):
         self.user_manager = UserManager("augusto", "augusto")
 
     async def test_get_users(self) -> None:
-        """Test correctly functioning of command manager."""
+        """Test correctly functioning of command manager when get users."""
         with mock.patch('shell_executor_lib.CommandManager.execute_command',
                         side_effect=(mock_users_list, mock_group_name_list, mock_group_name_list)):
             self.assertEqual(await self.user_manager.get_users(), [
                 User(1000, "javier", "/bin/bash", "/home/javier", "javier"),
                 User(1001, "pepe", "/bin/bash", "/home/pepe", "javier")])
+
+    async def test_add_user(self) -> None:
+        """Test correctly functioning of command manager when add user."""
+        with mock.patch(mock_command_executor_method, side_effect=([], [])):
+            await self.user_manager.add_user("javier", "/bin/bash", "/home/javier", "javier")
+
+    async def test_add_user_with_group(self) -> None:
+        """Test correctly functioning of command manager when add user."""
+        with mock.patch(mock_command_executor_method, side_effect=([], [])):
+            await self.user_manager.add_user("javier", "/bin/bash", "/home/javier", "javier",
+                                             "dev")
+
+    async def test_add_user_without_sudo(self) -> None:
+        """Test error when attempting to add user without sudo."""
+        with mock.patch(mock_command_executor_method, side_effect=(CommandError(1, "No sudo"))):
+            with self.assertRaises(UserPermissionError):
+                await self.user_manager.add_user("javier", "/bin/bash", "/home/javier", "javier")
+
+        with mock.patch(mock_command_executor_method, side_effect=([], CommandError(1, "No sudo"))):
+            with self.assertRaises(UserPermissionError):
+                await self.user_manager.add_user("javier", "/bin/bash", "/home/javier", "javier")
+
+    async def test_add_existing_user(self) -> None:
+        """Test error when attempting to add an existing user."""
+        with mock.patch(mock_command_executor_method, side_effect=(CommandError(9, "User exist"))):
+            with self.assertRaises(UserExistError):
+                await self.user_manager.add_user("javier", "/bin/bash", "/home/javier", "javier")
+
+    async def test_add_user_on_nonexistent_group(self) -> None:
+        """Test error when attempting to add a user into nonexistent group."""
+        with mock.patch(mock_command_executor_method, side_effect=(CommandError(6, "Group not exist"))):
+            with self.assertRaises(GroupNotExistError):
+                await self.user_manager.add_user("javier", "/bin/bash", "/home/javier", "javier", "qa")
