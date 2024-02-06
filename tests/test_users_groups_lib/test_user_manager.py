@@ -6,7 +6,7 @@ from unittest import mock
 from shell_executor_lib import CommandError
 
 from mock_users_groups_lib import mock_users_list, mock_group_name_list, mock_command_executor_method
-from users_groups_lib import UserManager, User, UserPermissionError, UserExistError, GroupNotExistError
+from users_groups_lib import UserManager, User, UserPermissionError, UserExistError, GroupNotExistError, UserInUseError
 from users_groups_lib.errors import UserNotExistError
 
 
@@ -59,7 +59,7 @@ class MockCommandManager(unittest.IsolatedAsyncioTestCase):
                 await self.user_manager.add_user("javier", "/bin/bash", "/home/javier", "javier", "qa")
 
     async def test_edit_existing_user(self) -> None:
-        """Test correctly functioning of command manager when add user."""
+        """Test correctly functioning of command manager when edit user."""
         with mock.patch(mock_command_executor_method, side_effect=([], [])):
             await self.user_manager.edit_user("javier", home="/home/javier", main_group="pepe")
 
@@ -90,3 +90,32 @@ class MockCommandManager(unittest.IsolatedAsyncioTestCase):
         with mock.patch(mock_command_executor_method, side_effect=CommandError(9, "group not exist")):
             with self.assertRaises(UserExistError):
                 await self.user_manager.edit_user("javier", home="/home/javier", main_group="pepe")
+
+    async def test_delete_existing_user(self) -> None:
+        """Test correctly functioning of command manager when delte user."""
+        with mock.patch(mock_command_executor_method, side_effect=([], [])):
+            await self.user_manager.delete_user("javier")
+
+    async def test_delete_user_without_sudo(self) -> None:
+        """Test error when attempting to delete user without sudo."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(1, "No sudo")):
+            with self.assertRaises(UserPermissionError):
+                await self.user_manager.delete_user("javier")
+
+    async def test_delete_nonexistent_user(self) -> None:
+        """Test error when attempting to delete a nonexistent user."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(6, "user not exist")):
+            with self.assertRaises(UserNotExistError):
+                await self.user_manager.delete_user("javier")
+
+    async def test_delete_user_in_use(self) -> None:
+        """Test error when attempting to delete user in use."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(8, "user in use")):
+            with self.assertRaises(UserInUseError):
+                await self.user_manager.delete_user("javier")
+
+    async def test_delete_user_unknown_exit(self) -> None:
+        """Test error when the command return unknown exit."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(978, "¿?")):
+            with self.assertRaises(CommandError):
+                await self.user_manager.delete_user("javier")

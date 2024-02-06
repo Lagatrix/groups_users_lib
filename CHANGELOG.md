@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - @javierfh03 - Add user manager with unit tests.
 - @javierfh03 - Develop add user in user manager with unit tests.
 - @javierfh03 - Develop edit user in user manager with unit tests.
-
+- @javierfh03 - Develop delete user in user manager with unit tests.
 
 
 [Unreleased]: https://github.com/Lagatrix/groups_users_lib.git

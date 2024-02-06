@@ -3,6 +3,7 @@ from typing import Optional
 
 from shell_executor_lib import CommandManager, CommandError
 
+from users_groups_lib import UserInUseError
 from users_groups_lib.entities import User
 from users_groups_lib.errors import UserPermissionError, GroupNotExistError, UserExistError, UserNotExistError
 
@@ -83,6 +84,13 @@ class UserManager:
             shell: New sell witch user use.
             password: New password of the user.
             main_group: New main group of the new user.
+
+        Raises:
+            UserExistError: If you put a username of existent user.
+            UserPermissionError: If you don't have sudo privileges to edit user.
+            GroupNotExistError: If you try to add the user in nonexistent group.
+            UserNotExistError: If you try to edit nonexistent user.
+            CommandError: If the exit code is not unexpected.
         """
         params: dict[str, str | None] = {"l": new_name, "d": home, "s": shell, "g": main_group}
         command: str = f"/sbin/usermod {name}"
@@ -106,6 +114,30 @@ class UserManager:
                     raise UserNotExistError(name)
                 case 9:
                     raise UserExistError(new_name if new_name is not None else name)
+            raise command_error
+
+    async def delete_user(self, name: str) -> None:
+        """Delete user of the system.
+
+        Args:
+            name: The username of the user to delete.
+
+        Raises:
+            UserInUseError: If you try to delete a user in use.
+            UserPermissionError: If you don't have sudo privileges to edit user.
+            UserNotExistError: If you try to delete nonexistent user.
+            CommandError: If the exit code is not unexpected.
+        """
+        try:
+            await self.command_manager.execute_command(f"/sbin/userdel {name}", True)
+        except CommandError as command_error:
+            match command_error.status_code:
+                case 1:
+                    raise UserPermissionError(name)
+                case 6:
+                    raise UserNotExistError(name)
+                case 8:
+                    raise UserInUseError(name)
             raise command_error
 
     async def _change_password(self, name: str, password: str) -> None:
