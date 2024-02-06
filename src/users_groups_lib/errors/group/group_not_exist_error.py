@@ -8,7 +8,7 @@ class GroupNotExistError(Exception):
         """Initialize the GroupNotExistError exception.
 
         Args:
-            group: Username of the user who manage.
+            group: Name of the group what manage.
         """
         self.message = f"You can't manage the group {group} because it doesn't exist."
         super().__init__(self.message)

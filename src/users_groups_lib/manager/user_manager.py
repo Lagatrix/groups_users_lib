@@ -4,7 +4,7 @@ from typing import Optional
 from shell_executor_lib import CommandManager, CommandError
 
 from users_groups_lib.entities import User
-from users_groups_lib.errors import UserPermissionError, GroupNotExistError, UserExistError
+from users_groups_lib.errors import UserPermissionError, GroupNotExistError, UserExistError, UserNotExistError
 
 
 class UserManager:
@@ -69,6 +69,43 @@ class UserManager:
                     raise GroupNotExistError(name)
                 case 9:
                     raise UserExistError(name)
+            raise command_error
+
+    async def edit_user(self, name: str, new_name: Optional[str] = None, home: Optional[str] = None,
+                        shell: Optional[str] = None, password: Optional[str] = None,
+                        main_group: Optional[str] = None) -> None:
+        """Edit user of the system.
+
+        Args:
+            name: The username of the user to modify.
+            new_name: New username.
+            home: New home directory.
+            shell: New sell witch user use.
+            password: New password of the user.
+            main_group: New main group of the new user.
+        """
+        params: dict[str, str | None] = {"l": new_name, "d": home, "s": shell, "g": main_group}
+        command: str = f"/sbin/usermod {name}"
+
+        for param, value in params.items():
+            if value is not None:
+                command += f" -{param} {value}"
+
+        try:
+            await self.command_manager.execute_command(command, True)
+
+            if password is not None:
+                await self._change_password(name, password)
+        except CommandError as command_error:
+            match command_error.status_code:
+                case 1:
+                    raise UserPermissionError(name)
+                case 6:
+                    if command_error.response.find("gr") != -1:
+                        raise GroupNotExistError(name)
+                    raise UserNotExistError(name)
+                case 9:
+                    raise UserExistError(new_name if new_name is not None else name)
             raise command_error
 
     async def _change_password(self, name: str, password: str) -> None:
