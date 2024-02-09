@@ -124,7 +124,7 @@ max-complexity = 10
 color = "always"
 show-source = true
 statistics = true
-per-file-ignores = ["__init__.py:F401", "test_user_manager.py:S106"]
+per-file-ignores = ["__init__.py:F401", "test_user_modifier.py:S106"]
 
 
 [tool.mypy]

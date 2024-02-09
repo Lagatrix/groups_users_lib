@@ -4,4 +4,6 @@ mock_command_executor_method = "shell_executor_lib.CommandManager.execute_comman
 
 mock_users_list = ["1000 javier /bin/bash /home/javier 1000", "1001 pepe /bin/bash /home/pepe 1000"]
 
+mock_user = ["1000 javier /bin/bash /home/javier 1000"]
+
 mock_group_name_list = ["javier"]
