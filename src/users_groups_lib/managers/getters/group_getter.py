@@ -10,9 +10,9 @@ class GroupGetter:
         """Initialize the GroupGetter.
 
         Args:
-            command_manager: To make  commands in the shell.
+            command_manager: To make commands in the shell.
         """
-        self._command_manager = command_manager
+        self._command_manager: CommandManager = command_manager
 
     async def get_groups(self) -> dict[Group, list[str]]:
         """Obtain the groups from the shell in a list.
@@ -47,7 +47,6 @@ class GroupGetter:
         Raises:
             CommandError: If the exit code is not 0.
         """
-        data: list[str] = await self._command_manager.execute_command(
-            "/bin/cat /etc/group | /bin/awk -F : '{print $1,$3,$4}'" + f" | grep {gid}", False)
-
-        return Group(int(data[1]), data[2], [])
+        data: list[str] = (await self._command_manager.execute_command(
+            "/bin/cat /etc/group | /bin/awk -F : '{print $1,$3,$4}'" + f" | grep {gid}", False))[0].split(" ")
+        return Group(int(data[1]), data[0], [])

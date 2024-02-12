@@ -12,5 +12,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 - @javierfh03 - Change structure of library, missing any unit test.
+- @javierfh03 - Add all unit test of user sections.
 
 [Unreleased]: https://github.com/Lagatrix/groups_users_lib.git

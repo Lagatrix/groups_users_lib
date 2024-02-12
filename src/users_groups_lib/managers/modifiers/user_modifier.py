@@ -1,7 +1,6 @@
 """Modify user in the shell."""
-from typing import Optional
 from shell_executor_lib import CommandManager, CommandError
-from users_groups_lib import UserPermissionError, GroupNotExistError, UserNotExistError, UserExistError
+from users_groups_lib import GroupNotExistError
 
 
 class UserModifier:
@@ -15,51 +14,73 @@ class UserModifier:
         """
         self._command_manager = command_manager
 
-    async def edit_user(self, name: str, new_name: Optional[str] = None, home: Optional[str] = None,
-                        shell: Optional[str] = None, password: Optional[str] = None,
-                        main_group: Optional[str] = None) -> None:
-        """Edit user of the system.
+    async def modify_username(self, name: str, new_name: str) -> None:
+        """Modify the username of user.
 
         Args:
-            name: The username of the user to modify.
-            new_name: New username.
-            home: New home directory.
-            shell: New sell witch user use.
-            password: New password of the user.
-            main_group: New main group of the new user.
+            name: Name of user.
+            new_name: New username of user.
+
+        Returns:
+            None.
 
         Raises:
-            UserExistError: If you put a username of existent user.
-            UserPermissionError: If you don't have sudo privileges to edit user.
+            CommandError: If the command fails.
+        """
+        await self._command_manager.execute_command(f"/sbin/usermod {name} -l {new_name}", True)
+
+    async def modify_home(self, name: str, home: str) -> None:
+        """Modify shell with user use in the shell.
+
+        Args:
+            name: Name of user.
+            home: New home directory.
+
+        Returns:
+            None.
+
+        Raises:
+            CommandError: If the command fails.
+        """
+        await self._command_manager.execute_command(f"/sbin/usermod {name} -d {home}", True)
+
+    async def modify_shell(self, name: str, shell: str) -> None:
+        """Modify shell with user use in the shell.
+
+        Args:
+            name: Name of user.
+            shell: New shell witch user use.
+
+        Returns:
+            None.
+
+        Raises:
+            CommandError: If the command fails.
+        """
+        await self._command_manager.execute_command(f"/sbin/usermod {name} -s {shell}", True)
+
+    async def modify_main_group(self, name: str, main_group: str) -> None:
+        """Modify main group of user in the shell.
+
+        Args:
+            name: Name of user.
+            main_group: New main group.
+
+        Returns:
+            None.
+
+        Raises:
             GroupNotExistError: If you try to add the user in nonexistent group.
-            UserNotExistError: If you try to edit nonexistent user.
             CommandError: If the exit code is not unexpected.
         """
-        params: dict[str, str | None] = {"l": new_name, "d": home, "s": shell, "g": main_group}
-        command: str = f"/sbin/usermod {name}"
-
-        for param, value in params.items():
-            if value is not None:
-                command += f" -{param} {value}"
-
         try:
-            await self._command_manager.execute_command(command, True)
-
-            if password is not None:
-                await self.change_password(name, password)
+            await self._command_manager.execute_command(f"/sbin/usermod {name} -g {main_group}", True)
         except CommandError as command_error:
-            match command_error.status_code:
-                case 1:
-                    raise UserPermissionError(name)
-                case 6:
-                    if command_error.response.find("gr") != -1:
-                        raise GroupNotExistError(name)
-                    raise UserNotExistError(name)
-                case 9:
-                    raise UserExistError(new_name if new_name is not None else name)
+            if command_error.status_code == 6:
+                raise GroupNotExistError(main_group)
             raise command_error
 
-    async def change_password(self, name: str, password: str) -> None:
+    async def modify_password(self, name: str, password: str) -> None:
         """Change the password of user.
 
         Args:
@@ -67,12 +88,6 @@ class UserModifier:
             password: The new password.
 
         Raises:
-            UserPermissionError: If you don't have sudo privileges to manage user.
             CommandError: If the exit code is not unexpected.
         """
-        try:
-            await self._command_manager.execute_command(f"/bin/passwd {name}", True, password, password)
-        except CommandError as command_error:
-            if command_error.status_code == 1:
-                raise UserPermissionError(name)
-            raise command_error
+        await self._command_manager.execute_command(f"/bin/passwd {name}", True, password, password)

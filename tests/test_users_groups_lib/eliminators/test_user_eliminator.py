@@ -18,7 +18,7 @@ class TestUserEliminator(unittest.IsolatedAsyncioTestCase):
         self.user_eliminator = UserEliminator(CommandManager("augusto", "augusto"))
 
     async def test_delete_existing_user(self) -> None:
-        """Test correctly functioning of command managers when delte user."""
+        """Test correctly functioning of command managers when delete user."""
         with mock.patch(mock_command_executor_method, side_effect=([], [])):
             await self.user_eliminator.delete_user("javier")
 

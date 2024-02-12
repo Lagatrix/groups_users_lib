@@ -1,1 +1,3 @@
-"""Mocks of the users."""
+"""Mocks of the groups."""
+
+mock_group = ["javier 1000"]

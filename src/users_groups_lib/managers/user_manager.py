@@ -1,6 +1,9 @@
 """Manage unix users in shell."""
-from shell_executor_lib import CommandManager
+from typing import Optional
 
+from shell_executor_lib import CommandManager, CommandError
+
+from users_groups_lib import UserPermissionError, UserExistError, UserNotExistError
 from users_groups_lib.entities import User
 from users_groups_lib.managers.eliminators import UserEliminator
 from users_groups_lib.managers.getters import UserGetter
@@ -70,9 +73,9 @@ class UserManager:
             CommandError: If the exit code is not unexpected.
         """
         await self.user_inserter.add_user(user.name, user.home, user.shell, user.main_group)
-        await self.user_modifier.change_password(user.name, password)
+        await self.user_modifier.modify_password(user.name, password)
 
-    async def edit_user(self, name: str, modify_user: User, password: str) -> None:
+    async def edit_user(self, name: str, modify_user: User, password: Optional[str] = None) -> None:
         """Edit a user to the system.
 
         Args:
@@ -87,9 +90,32 @@ class UserManager:
             UserNotExistError: If you try to edit nonexistent user.
             CommandError: If the exit code is not unexpected.
         """
-        await self.user_modifier.edit_user(name, modify_user.name, modify_user.home, modify_user.shell,
-                                           modify_user.main_group)
-        await self.user_modifier.change_password(modify_user.name, password)
+        try:
+            await self.user_getter.get_user(name)
+
+            if modify_user.main_group is not None:
+                await self.user_modifier.modify_home(name, modify_user.main_group)
+
+            if modify_user.name is not None:
+                await self.user_modifier.modify_username(name, modify_user.name)
+
+            if modify_user.home is not None:
+                await self.user_modifier.modify_home(name, modify_user.home)
+
+            if modify_user.shell is not None:
+                await self.user_modifier.modify_home(name, modify_user.shell)
+
+            if password is not None:
+                await self.user_modifier.modify_password(modify_user.name, password)
+        except CommandError as command_error:
+            match command_error.status_code:
+                case 1:
+                    raise UserPermissionError(name)
+                case 6:
+                    raise UserNotExistError(name)
+                case 9:
+                    raise UserExistError(modify_user.name if modify_user.name is not None else name)
+            raise command_error
 
     async def delete_user(self, user: User) -> None:
         """Delete user of the system.
