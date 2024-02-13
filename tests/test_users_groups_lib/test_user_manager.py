@@ -6,9 +6,8 @@ from unittest import mock
 from shell_executor_lib import CommandManager, CommandError
 
 from mock_users_groups_lib import mock_command_executor_method, mock_user_entity, mock_user, mock_users_list, \
-    mock_group
-from users_groups_lib import UserManager, UserPermissionError, UserNotExistError, UserExistError, \
-    User
+    mock_group, mock_users_list_entities
+from users_groups_lib import UserManager, UserPermissionError, UserNotExistError, UserExistError
 
 
 class MockCommandManager(unittest.IsolatedAsyncioTestCase):
@@ -21,9 +20,7 @@ class MockCommandManager(unittest.IsolatedAsyncioTestCase):
     async def test_get_users(self) -> None:
         """Test correctly functioning of command managers when get all users of the system."""
         with mock.patch(mock_command_executor_method, side_effect=(mock_users_list, mock_group, mock_group)):
-            self.assertEqual(await self.user_manager.get_users(), [
-                User(1000, "javier", "/bin/bash", "/home/javier", "javier"),
-                User(1001, "pepe", "/bin/bash", "/home/pepe", "javier")])
+            self.assertEqual(await self.user_manager.get_users(), mock_users_list_entities)
 
     async def test_get_user(self) -> None:
         """Test correctly functioning of command managers when get a user of the system."""

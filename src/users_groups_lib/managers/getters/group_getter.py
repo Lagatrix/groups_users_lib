@@ -14,7 +14,7 @@ class GroupGetter:
         """
         self._command_manager: CommandManager = command_manager
 
-    async def get_groups(self) -> dict[Group, list[str]]:
+    async def get_groups(self) -> list[Group]:
         """Obtain the groups from the shell in a list.
 
         Returns:
@@ -23,7 +23,7 @@ class GroupGetter:
         Raises:
             CommandError: If the exit code is not 0.
         """
-        group_map: dict[Group, list[str]] = {}
+        group_list: list[Group] = []
 
         data_list: list[str] = await self._command_manager.execute_command(
             "/bin/cat /etc/group | /bin/awk -F : '{print $1,$3,$4}'", False)
@@ -31,9 +31,9 @@ class GroupGetter:
         for data_row in data_list:
             data: list[str] = data_row.split(" ")
 
-            group_map[Group(int(data[1]), data[2], [])] = data[3].split(",")
+            group_list.append(Group(int(data[1]), data[0], data[2].split(",")))
 
-        return group_map
+        return group_list
 
     async def get_group(self, gid: int) -> Group:
         """Obtain the groups from the shell in a list.
@@ -42,11 +42,12 @@ class GroupGetter:
             gid: The GID of the group.
 
         Returns:
-            The group without users.
+            The group.
 
         Raises:
             CommandError: If the exit code is not 0.
         """
         data: list[str] = (await self._command_manager.execute_command(
             "/bin/cat /etc/group | /bin/awk -F : '{print $1,$3,$4}'" + f" | grep {gid}", False))[0].split(" ")
-        return Group(int(data[1]), data[0], [])
+
+        return Group(int(data[1]), data[0], data[2].split(","))

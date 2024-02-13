@@ -7,7 +7,7 @@ from users_groups_lib import UserPermissionError, UserExistError, UserNotExistEr
 from users_groups_lib.entities import User
 from users_groups_lib.managers.eliminators import UserEliminator
 from users_groups_lib.managers.getters import UserGetter
-from users_groups_lib.managers.getters.group_getter import GroupGetter
+from users_groups_lib.managers.getters import GroupGetter
 from users_groups_lib.managers.inserters import UserInserter
 from users_groups_lib.managers.modifiers.user_modifier import UserModifier
 
@@ -19,13 +19,13 @@ class UserManager:
         """Initialize the UserManager.
 
         Args:
-            command_manager: To make  commands in the shell.
+            command_manager: To make commands in the shell.
         """
-        self.user_getter: UserGetter = UserGetter(command_manager)
-        self.user_inserter: UserInserter = UserInserter(command_manager)
-        self.user_eliminator: UserEliminator = UserEliminator(command_manager)
-        self.user_modifier: UserModifier = UserModifier(command_manager)
-        self.group_getter: GroupGetter = GroupGetter(command_manager)
+        self.__user_getter: UserGetter = UserGetter(command_manager)
+        self.__user_inserter: UserInserter = UserInserter(command_manager)
+        self.__user_eliminator: UserEliminator = UserEliminator(command_manager)
+        self.__user_modifier: UserModifier = UserModifier(command_manager)
+        self.__group_getter: GroupGetter = GroupGetter(command_manager)
 
     async def get_users(self) -> list[User]:
         """Obtain the users from the shell in a list.
@@ -36,10 +36,10 @@ class UserManager:
         Raises:
             CommandError: If the exit code is not 0.
         """
-        user_list: list[User] = await self.user_getter.get_users()
+        user_list: list[User] = await self.__user_getter.get_users()
 
         for user in user_list:
-            user.main_group = (await self.group_getter.get_group(int(user.main_group))).name
+            user.main_group = (await self.__group_getter.get_group(int(user.main_group))).name
 
         return user_list
 
@@ -53,9 +53,9 @@ class UserManager:
             UserExistError: If the user not exist.
             CommandError: If the exit code is not 0.
         """
-        user: User = await self.user_getter.get_user(user_name)
+        user: User = await self.__user_getter.get_user(user_name)
 
-        user.main_group = (await self.group_getter.get_group(int(user.main_group))).name
+        user.main_group = (await self.__group_getter.get_group(int(user.main_group))).name
 
         return user
 
@@ -72,8 +72,8 @@ class UserManager:
             GroupNotExistError: If you try to add the new user in nonexistent group.
             CommandError: If the exit code is not unexpected.
         """
-        await self.user_inserter.add_user(user.name, user.home, user.shell, user.main_group)
-        await self.user_modifier.modify_password(user.name, password)
+        await self.__user_inserter.add_user(user.name, user.home, user.shell, user.main_group)
+        await self.__user_modifier.modify_password(user.name, password)
 
     async def edit_user(self, name: str, modify_user: User, password: Optional[str] = None) -> None:
         """Edit a user to the system.
@@ -91,22 +91,22 @@ class UserManager:
             CommandError: If the exit code is not unexpected.
         """
         try:
-            await self.user_getter.get_user(name)
+            await self.__user_getter.get_user(name)
 
             if modify_user.main_group is not None:
-                await self.user_modifier.modify_home(name, modify_user.main_group)
+                await self.__user_modifier.modify_home(name, modify_user.main_group)
 
             if modify_user.name is not None:
-                await self.user_modifier.modify_username(name, modify_user.name)
+                await self.__user_modifier.modify_username(name, modify_user.name)
 
             if modify_user.home is not None:
-                await self.user_modifier.modify_home(name, modify_user.home)
+                await self.__user_modifier.modify_home(name, modify_user.home)
 
             if modify_user.shell is not None:
-                await self.user_modifier.modify_home(name, modify_user.shell)
+                await self.__user_modifier.modify_home(name, modify_user.shell)
 
             if password is not None:
-                await self.user_modifier.modify_password(modify_user.name, password)
+                await self.__user_modifier.modify_password(modify_user.name, password)
         except CommandError as command_error:
             match command_error.status_code:
                 case 1:
@@ -129,4 +129,4 @@ class UserManager:
             UserNotExistError: If you try to delete nonexistent user.
             CommandError: If the exit code is not unexpected.
         """
-        await self.user_eliminator.delete_user(user.name)
+        await self.__user_eliminator.delete_user(user.name)
