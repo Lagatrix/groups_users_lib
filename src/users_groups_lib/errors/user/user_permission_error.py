@@ -1,8 +1,8 @@
-"""Represents an error if you add a new user and this user exist."""
+"""Represents an error if the user who manage another user don't have sudo permissions."""
 
 
 class UserPermissionError(Exception):
-    """Represents an error if the user who add new user don't have sudo permissions."""
+    """Represents an error if the user who manage another user don't have sudo permissions."""
 
     def __init__(self, user: str):
         """Initialize the UserPermissionError exception.

@@ -28,7 +28,7 @@ class UserInserter:
 
         Raises:
             UserExistError: If the user already exist.
-            UserPermissionError: If you don't have sudo privileges to add user.
+            UserPermissionError: If you don't have sudo privileges to add new user.
             GroupNotExistError: If you try to add the new user in nonexistent group.
             CommandError: If the exit code is not unexpected.
         """
