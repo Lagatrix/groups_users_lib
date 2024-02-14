@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - @javierfh03 - Develop delete user in user manager with unit tests.
 - @javierfh03 - Develop get groups in group manager with unit tests and little changes in user sections.
 - @javierfh03 - Develop insert groups in group manager with unit tests.
+- @javierfh03 - Develop delete groups in group manager with unit tests.
 
 ### Changed
 - @javierfh03 - Change structure of library, missing any unit test.
