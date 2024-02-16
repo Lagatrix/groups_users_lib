@@ -26,7 +26,7 @@ class UserGetter:
         user_list: list[User] = []
 
         data_list: list[str] = await self._command_manager.execute_command(
-            "/bin/cat /etc/passwd | /bin/awk -F : '{print $3,$1,$7,$6,$4 }'", False)
+            "/bin/cat /etc/passwd | /bin/awk -F : '{print \\$3,\\$1,\\$7,\\$6,\\$4}'", False)
 
         for data_row in data_list:
             data: list[str] = data_row.split(" ")
@@ -46,7 +46,7 @@ class UserGetter:
             CommandError: If the exit code is not 0.
         """
         data_user: list[str] = await self._command_manager.execute_command(
-            "/bin/cat /etc/passwd | /bin/awk -F : '{print $3,$1,$7,$6,$4}'" + f"| grep {user_name}", False)
+            "/bin/cat /etc/passwd | /bin/awk -F : '{print \\$3,\\$1,\\$7,\\$6,\\$4}'" + f"| grep {user_name}", False)
 
         if len(data_user) < 1:
             raise UserNotExistError(user_name)
