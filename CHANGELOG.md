@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 ### Changed
 - @javierfh03 - Quit permissions errors and update shell_executor_lib.
+- @javierfh03 - Change internal structure.
 
 
 ## [0.1.0] - 2024-02-16

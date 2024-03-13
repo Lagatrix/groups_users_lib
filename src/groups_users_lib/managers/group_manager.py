@@ -32,7 +32,16 @@ class GroupManager:
         Raises:
             CommandError: If the exit code is not 0.
         """
-        return await self.__group_getter.get_groups()
+        group_list: list[Group] = []
+
+        async for group_tuple in self.__group_getter.get_groups():
+            group_list.append(Group(
+                gid=group_tuple[0],
+                name=group_tuple[1],
+                users=group_tuple[2],
+            ))
+
+        return group_list
 
     async def add_group(self, group: Group) -> None:
         """Add a group to the shell.

@@ -35,11 +35,16 @@ class UserManager:
         Raises:
             CommandError: If the exit code is not 0.
         """
-        user_list: list[User] = await self.__user_getter.get_users()
+        user_list: list[User] = []
 
-        for user in user_list:
-            if user.main_group is not None:
-                user.main_group = (await self.__group_getter.get_group(int(user.main_group))).name
+        async for user_tuple in self.__user_getter.get_users():
+            user_list.append(User(
+                uid=user_tuple[0],
+                name=user_tuple[1],
+                shell=user_tuple[2],  # noqa
+                home=user_tuple[3],
+                main_group=(await self.__group_getter.get_group(user_tuple[0]))[1]
+            ))
 
         return user_list
 
@@ -53,12 +58,15 @@ class UserManager:
             UserExistError: If the user not exist.
             CommandError: If the exit code is not 0.
         """
-        user: User = await self.__user_getter.get_user(user_name)
+        user_tuple: tuple[int, str, str, str, int] = await self.__user_getter.get_user(user_name)
 
-        if user.main_group is not None:
-            user.main_group = (await self.__group_getter.get_group(int(user.main_group))).name
-
-        return user
+        return User(
+                uid=user_tuple[0],
+                name=user_tuple[1],
+                shell=user_tuple[2], # noqa
+                home=user_tuple[3],
+                main_group=(await self.__group_getter.get_group(user_tuple[0]))[1]
+            )
 
     async def add_user(self, user: User, password: str) -> None:
         """Add a user to the system.
