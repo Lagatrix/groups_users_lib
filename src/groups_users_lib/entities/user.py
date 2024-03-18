@@ -12,9 +12,11 @@ class User:
         shell: The shell which user use.
         home: The home directory of the user.
         main_group: The main group of the user.
+        password: The password of the user.
     """
     uid: int | None = None
     name: str | None = None
     shell: str | None = None
     home: str | None = None
     main_group: str | None = None
+    password: str | None = None

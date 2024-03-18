@@ -68,12 +68,11 @@ class UserManager:
                 main_group=(await self.__group_getter.get_group(user_tuple[0]))[1]
             )
 
-    async def add_user(self, user: User, password: str) -> None:
+    async def add_user(self, user: User) -> None:
         """Add a user to the system.
 
         Args:
             user: The new user.
-            password: The password of the new user.
 
         Raises:
             UserExistError: If the user already exist.
@@ -81,11 +80,11 @@ class UserManager:
             CommandError: If the exit code is not unexpected.
             ValueError: If the user don't have name, home and shell.
         """
-        if user.name and user.home and user.shell is not None:
+        if user.name and user.home and user.shell and user.password is not None:
             await self.__user_inserter.add_user(user.name, user.home, user.shell, user.main_group)
-            await self.__user_modifier.modify_password(user.name, password)
+            await self.__user_modifier.modify_password(user.name, user.password)
         else:
-            raise ValueError("The user must have name, home and shell")
+            raise ValueError("The user must have name, home, password and shell")
 
     async def edit_user(self, name: str, modify_user: User, password: Optional[str] = None) -> None:
         """Edit a user to the system.
