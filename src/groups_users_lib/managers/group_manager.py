@@ -51,6 +51,7 @@ class GroupManager:
 
         Raises:
             GroupExistError: If the group already exists.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the command return an unknown exit code.
         """
         await self.__group_inserter.add_group(group.name, group.users)
@@ -64,6 +65,7 @@ class GroupManager:
 
         Raises:
             GroupNotExistError: If the group to modify doesn't exist.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError:  If the command return an unknown exit code.
         """
         await self.__group_modifier.modify_name(group, new_group.name)
@@ -107,6 +109,7 @@ class GroupManager:
         Raises:
             GroupNotExistError: If the group does not exist.
             GroupInUseError: If the group is in use.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the command return an unknown exit code.
         """
         await self.__group_eliminator.delete_group(group.name)

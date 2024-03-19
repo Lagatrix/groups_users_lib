@@ -27,6 +27,7 @@ class GroupInserter:
         Raises:
             GroupExistError: If the group already exist.
             UserNotExistError: If you try to add a nonexistent user in the group.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the exit code is not unexpected.
         """
         command: str = f"/sbin/groupadd {name}"

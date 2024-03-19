@@ -22,6 +22,8 @@ class UserModifier:
             new_name: New username of user.
 
         Raises:
+            PrivilegesError: If the user doesn't have sudo privileges.
+            UserExistError: If the new username already exist.
             CommandError: If the command fails.
         """
         try:
@@ -39,6 +41,7 @@ class UserModifier:
             home: New home directory.
 
         Raises:
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the command fails.
         """
         await self._command_manager.execute_command(f"/sbin/usermod {name} -d {home}", True)
@@ -51,6 +54,7 @@ class UserModifier:
             shell: New shell witch user use.
 
         Raises:
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the command fails.
         """
         await self._command_manager.execute_command(f"/sbin/usermod {name} -s {shell}", True)
@@ -64,6 +68,7 @@ class UserModifier:
 
         Raises:
             GroupNotExistError: If you try to add the user in nonexistent group.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the exit code is not unexpected.
         """
         try:
@@ -81,6 +86,7 @@ class UserModifier:
             password: The new password.
 
         Raises:
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the exit code is not unexpected.
         """
         await self._command_manager.execute_command(f"/bin/passwd {name}", True, password, password)

@@ -27,6 +27,7 @@ class GroupModifier:
             GroupPermissionError: If the user doesn't have permission to modify the group.
             GroupExistError: If the new name of the group already exists.
             GroupNotExistError: If the group to modify doesn't exist.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError:  If the command return an unknown exit code.
         """
         try:

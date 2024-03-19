@@ -33,6 +33,7 @@ class UserManager:
             A list of the users in the shell.
 
         Raises:
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the exit code is not 0.
         """
         user_list: list[User] = []
@@ -56,6 +57,7 @@ class UserManager:
 
         Raises:
             UserExistError: If the user not exist.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the exit code is not 0.
         """
         user_tuple: tuple[int, str, str, str, int] = await self.__user_getter.get_user(user_name)
@@ -78,6 +80,7 @@ class UserManager:
             UserExistError: If the user already exist.
             GroupNotExistError: If you try to add the new user in nonexistent group.
             CommandError: If the exit code is not unexpected.
+            PrivilegesError: If the user doesn't have sudo privileges.
             ValueError: If the user don't have name, home and shell.
         """
         if user.name and user.home and user.shell and user.password is not None:
@@ -98,6 +101,7 @@ class UserManager:
             UserExistError: If you put a username of existent user.
             GroupNotExistError: If you try to add the user in nonexistent group.
             UserNotExistError: If you try to edit nonexistent user.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the exit code is not unexpected.
         """
         await self.__user_getter.get_user(name)
@@ -117,16 +121,16 @@ class UserManager:
         if password is not None:
             await self.__user_modifier.modify_password(modify_user.name if modify_user.name else name, password)
 
-    async def delete_user(self, user: User) -> None:
+    async def delete_user(self, username: str) -> None:
         """Delete user of the system.
 
         Args:
-            user: The User to delete.
+            username: The username of user to delete.
 
         Raises:
             UserInUseError: If you try to delete a user in use.
             UserNotExistError: If you try to delete nonexistent user.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the exit code is not unexpected.
         """
-        if user.name is not None:
-            await self.__user_eliminator.delete_user(user.name)
+        await self.__user_eliminator.delete_user(username)
