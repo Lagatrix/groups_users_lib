@@ -33,7 +33,6 @@ class UserManager:
             A list of the users in the shell.
 
         Raises:
-            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the exit code is not 0.
         """
         user_list: list[User] = []
@@ -56,8 +55,7 @@ class UserManager:
             The user.
 
         Raises:
-            UserExistError: If the user not exist.
-            PrivilegesError: If the user doesn't have sudo privileges.
+            UserNotExistError: If the user not exist.
             CommandError: If the exit code is not 0.
         """
         user_tuple: tuple[int, str, str, str, int] = await self.__user_getter.get_user(user_name)
