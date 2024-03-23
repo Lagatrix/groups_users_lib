@@ -49,6 +49,7 @@ class GroupModifier:
         Raises:
             GroupPermissionError: If the user doesn't have permission to add users in the group.
             UserNotExistError: If the user doesn't exist.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError:  If the command return an unknown exit code.
         """
         try:
@@ -68,6 +69,7 @@ class GroupModifier:
         Raises:
             GroupPermissionError: If the user doesn't have permission to delete users in the group.
             NoUserInGroupError: If the user is not in the group.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError:  If the command return an unknown exit code.
         """
         try:

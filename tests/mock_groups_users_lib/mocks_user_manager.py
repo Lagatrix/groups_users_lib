@@ -14,5 +14,6 @@ mock_users_list_entities = [User(1000, "javier", "/bin/bash", "/home/javier", "j
                             User(1001, "pepe", "/bin/bash", "/home/pepe", "javier")]
 
 mock_user_entity = User(1000, "javier", "/bin/bash", "/home/javier", "javier")
+mock_user_entity_with_password = User(1000, "javier", "/bin/bash", "/home/javier", "javier", "pass")
 
 mock_group_name_list = ["javier"]

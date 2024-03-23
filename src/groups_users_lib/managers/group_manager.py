@@ -54,7 +54,10 @@ class GroupManager:
             PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the command return an unknown exit code.
         """
-        await self.__group_inserter.add_group(group.name, group.users)
+        if group.name and group.users is not None:
+            await self.__group_inserter.add_group(group.name, group.users)
+        else:
+            raise ValueError("The new group must have a name and user list.")
 
     async def edit_group(self, group: str, new_group: Group) -> None:
         """Edit the name of a group in the shell.
@@ -66,45 +69,51 @@ class GroupManager:
         Raises:
             GroupNotExistError: If the group to modify doesn't exist.
             PrivilegesError: If the user doesn't have sudo privileges.
+            ValueError: If the new group doesn't have a name.
             CommandError:  If the command return an unknown exit code.
         """
-        await self.__group_modifier.modify_name(group, new_group.name)
+        if new_group.name is not None:
+            await self.__group_modifier.modify_name(group, new_group.name)
+        else:
+            raise ValueError("The new group must have a name.")
 
-    async def add_user_to_group(self, group: Group, username: str) -> None:
+    async def add_user_to_group(self, group_name: str, username: str) -> None:
         """Add a user to a group.
 
         Args:
-            group: The group to add the user to.
+            group_name: The group to add the user to.
             username: The user to add to the group.
 
         Raises:
             UserNotExistError: If the user doesn't exist.
             GroupNotExistError: If the group doesn't exist.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError:  If the command return an unknown exit code.
         """
-        await self.__group_getter.get_group(group.name)
-        await self.__group_modifier.add_user_to_group(username, group.name)
+        await self.__group_getter.get_group(group_name)
+        await self.__group_modifier.add_user_to_group(username, group_name)
 
-    async def remove_user_from_group(self, group: Group, username: str) -> None:
+    async def remove_user_from_group(self, group_name: str, username: str) -> None:
         """Remove a user from a group.
 
         Args:
-            group: The group to remove the user from.
+            group_name: The group to remove the user from.
             username: The user to remove from the group.
 
         Raises:
             UserNotExistError: If the user doesn't exist.
             GroupNotExistError: If the group doesn't exist.
+            PrivilegesError: If the user doesn't have sudo privileges.
             CommandError:  If the command return an unknown exit code.
         """
-        await self.__group_getter.get_group(group.name)
-        await self.__group_modifier.remove_user_from_group(username, group.name)
+        await self.__group_getter.get_group(group_name)
+        await self.__group_modifier.remove_user_from_group(username, group_name)
 
-    async def delete_group(self, group: Group) -> None:
+    async def delete_group(self, group_name: str) -> None:
         """Delete a group to the shell.
 
         Args:
-            group: The group to add to the shell.
+            group_name: The group to add to the shell.
 
         Raises:
             GroupNotExistError: If the group does not exist.
@@ -112,4 +121,4 @@ class GroupManager:
             PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the command return an unknown exit code.
         """
-        await self.__group_eliminator.delete_group(group.name)
+        await self.__group_eliminator.delete_group(group_name)

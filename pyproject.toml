@@ -1,6 +1,6 @@
 [project]
 name = "groups_users_lib"
-version = "0.1.1"
+version = "0.1.2"
 description = "This library manage unix users and groups asynchronously"
 
 maintainers = [
@@ -13,7 +13,7 @@ authors = [
 
 [tool.poetry]
 name = "groups_users_lib"
-version = "0.1.1"
+version = "0.1.2"
 description = "This library manage unix users and groups asynchronously"
 keywords = ["Python", "Library", "Users", "Groups"]
 license = "Apache License"

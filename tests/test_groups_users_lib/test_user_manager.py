@@ -6,7 +6,7 @@ from unittest import mock
 from shell_executor_lib import CommandManager, CommandError
 
 from tests.mock_groups_users_lib import mock_command_executor_method, mock_user_entity, mock_user, mock_users_list, \
-    mock_group, mock_users_list_entities
+    mock_group, mock_users_list_entities, mock_user_entity_with_password
 from groups_users_lib import UserManager, UserNotExistError, User
 
 
@@ -30,12 +30,12 @@ class MockCommandManager(unittest.IsolatedAsyncioTestCase):
     async def test_add_user(self) -> None:
         """Test correctly functioning of command managers when add a user to the system."""
         with mock.patch(mock_command_executor_method, return_value=[]):
-            await self.user_manager.add_user(mock_user_entity, "pass")
+            await self.user_manager.add_user(mock_user_entity_with_password)
 
     async def test_add_user_without_username(self) -> None:
         """Test error when attempting to add a user without username."""
         with self.assertRaises(ValueError):
-            await self.user_manager.add_user(User(home="/home/javier"), "pass")
+            await self.user_manager.add_user(User(home="/home/javier"))
 
     async def test_edit_existing_user(self) -> None:
         """Test correctly functioning of command managers when edit user."""
@@ -44,7 +44,7 @@ class MockCommandManager(unittest.IsolatedAsyncioTestCase):
 
     async def test_edit_nonexistent_user(self) -> None:
         """Test error when attempting to edit a nonexistent user."""
-        with mock.patch(mock_command_executor_method, return_value=[]):
+        with mock.patch(mock_command_executor_method, return_value=["Password:"]):
             with self.assertRaises(UserNotExistError):
                 await self.user_manager.edit_user("javier", mock_user_entity, "pass")
 
@@ -57,4 +57,4 @@ class MockCommandManager(unittest.IsolatedAsyncioTestCase):
     async def test_delete_user(self) -> None:
         """Test correctly functioning of command managers when delete a user of the system."""
         with mock.patch(mock_command_executor_method, return_value=[]):
-            await self.user_manager.delete_user(mock_user_entity)
+            await self.user_manager.delete_user("augusto")

@@ -11,6 +11,6 @@ class Group:
         name: The name of the group.
         users: List of users names in group.
     """
-    gid: int
-    name: str
-    users: list[str]
+    gid: int | None = None
+    name: str | None = None
+    users: list[str] | None = None

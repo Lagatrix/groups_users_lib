@@ -33,6 +33,6 @@ class TestUserGetter(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_nonexistent_user(self) -> None:
         """Test error when try getting nonexistent user."""
-        with mock.patch(mock_command_executor_method, return_value=[]):
+        with mock.patch(mock_command_executor_method, return_value=["Password:"]):
             with self.assertRaises(UserNotExistError):
                 await self.user_getter.get_user("javier")
