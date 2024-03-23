@@ -3,7 +3,7 @@
 import unittest
 from unittest import mock
 
-from shell_executor_lib import CommandManager
+from shell_executor_lib import CommandManager, CommandError
 
 from tests.mock_groups_users_lib import (mock_users_list, mock_group_name_list, mock_user, mock_user_tuple,
                                          mock_command_executor_method, mock_user_tuples_list)
@@ -31,8 +31,20 @@ class TestUserGetter(unittest.IsolatedAsyncioTestCase):
                         side_effect=(mock_users_list, mock_group_name_list, mock_user)):
             self.assertEqual(await self.user_getter.get_user("javier"), mock_user_tuple)
 
-    async def test_get_nonexistent_user(self) -> None:
-        """Test error when try getting nonexistent user."""
+    async def test_get_empty_user(self) -> None:
+        """Test error when try getting empty user."""
         with mock.patch(mock_command_executor_method, return_value=["Password:"]):
             with self.assertRaises(UserNotExistError):
+                await self.user_getter.get_user("javier")
+
+    async def test_get_nonexistent_user(self) -> None:
+        """Test error when try getting nonexistent user."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(1, "exit code 1")):
+            with self.assertRaises(UserNotExistError):
+                await self.user_getter.get_user("javier")
+
+    async def test_get_user_unknown_error(self) -> None:
+        """Test error when try getting user with unknown error."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(2, "exit code 2")):
+            with self.assertRaises(CommandError):
                 await self.user_getter.get_user("javier")

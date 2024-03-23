@@ -24,6 +24,11 @@ class MockCommandManager(unittest.IsolatedAsyncioTestCase):
         with mock.patch(mock_command_executor_method, return_value=mock_groups_list):
             self.assertEqual(await self.group_manager.get_groups(), mock_groups_entities)
 
+    async def test_get_group(self) -> None:
+        """Test correctly functioning of command managers when get group."""
+        with mock.patch(mock_command_executor_method, return_value=mock_group):
+            self.assertEqual(await self.group_manager.get_group("javier"), mock_groups_entity)
+
     async def test_add_group(self) -> None:
         """Test correctly functioning of command managers when add group."""
         with mock.patch(mock_command_executor_method, return_value=[]):

@@ -43,6 +43,23 @@ class GroupManager:
 
         return group_list
 
+    async def get_group(self, group_name: str) -> Group:
+        """Obtain a group from the shell.
+
+        Returns:
+            The group.
+
+        Raises:
+            GroupNotExistError: If the group not exist.
+            CommandError: If the exit code is not 0.
+        """
+        group_tuple: tuple[int, str, list[str]] = await self.__group_getter.get_group(group_name)
+        return Group(
+            gid=group_tuple[0],
+            name=group_tuple[1],
+            users=group_tuple[2],
+        )
+
     async def add_group(self, group: Group) -> None:
         """Add a group to the shell.
 

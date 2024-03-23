@@ -3,7 +3,7 @@
 import unittest
 from unittest import mock
 
-from shell_executor_lib import CommandManager
+from shell_executor_lib import CommandManager, CommandError
 
 from tests.mock_groups_users_lib import mock_command_executor_method
 from tests.mock_groups_users_lib.mocks_group_manager import (mock_groups_list, mock_group, mock_group_tuple_list,
@@ -30,8 +30,20 @@ class TestUserGetter(unittest.IsolatedAsyncioTestCase):
         with mock.patch(mock_command_executor_method, return_value=mock_group):
             self.assertEqual(await self.group_getter.get_group(1000), mock_group_tuple)
 
-    async def test_get_nonexistent_group(self) -> None:
-        """Test error when trying to get a nonexistent group."""
+    async def test_get_empty_group(self) -> None:
+        """Test error when trying to get empty group."""
         with mock.patch(mock_command_executor_method, return_value=[]):
             with self.assertRaises(GroupNotExistError):
+                await self.group_getter.get_group("javier2")
+
+    async def test_get_nonexistent_group(self) -> None:
+        """Test error when trying to get nonexistent group."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(1, "exit code 1")):
+            with self.assertRaises(GroupNotExistError):
+                await self.group_getter.get_group("javier2")
+
+    async def test_get_group_unknown_error(self) -> None:
+        """Test error when trying to get group with unknown error."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(2, "exit code 2")):
+            with self.assertRaises(CommandError):
                 await self.group_getter.get_group("javier2")

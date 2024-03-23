@@ -1,7 +1,7 @@
 """Get groups from the shell."""
 from typing import AsyncIterable
 
-from shell_executor_lib import CommandManager
+from shell_executor_lib import CommandManager, CommandError
 
 from groups_users_lib import GroupNotExistError
 
@@ -44,14 +44,19 @@ class GroupGetter:
 
         Raises:
             GroupNotExistError: If the group not exist.
-            CommandError: If the exit code is not 0.
+            CommandError:  If the error is not excepted.
         """
-        data_group: list[str] = (await self._command_manager.execute_command(
-            "/bin/cat /etc/group | /bin/awk -F : '{print \\$1,\\$3,\\$4}'" + f" | grep {identification}", False))
+        try:
+            data_group: list[str] = (await self._command_manager.execute_command(
+                "/bin/cat /etc/group | /bin/awk -F : '{print \\$1,\\$3,\\$4}'" + f" | grep {identification}", False))
 
-        if len(data_group) > 0:
-            data: list[str] = data_group[0].split(" ")
-            if len(data) > 1:
-                return int(data[1]), data[0], data[2].split(",") if len(data) > 2 else []
+            if len(data_group) > 0:
+                data: list[str] = data_group[0].split(" ")
+                if len(data) > 1:
+                    return int(data[1]), data[0], data[2].split(",") if len(data) > 2 else []
+
+        except CommandError as error:
+            if error.status_code != 1:
+                raise error
 
         raise GroupNotExistError(identification)
