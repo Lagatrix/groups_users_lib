@@ -73,7 +73,7 @@ class GroupModifier:
             CommandError:  If the command return an unknown exit code.
         """
         try:
-            await self._command_manager.execute_command(f"/usr/sbin/gpasswd -d {user} {group}", True)
+            await self._command_manager.execute_command(f"/bin/gpasswd -d {user} {group}", True)
         except CommandError as command_error:
             if command_error.status_code == 3:
                 raise NoUserInGroupError(group, user)
