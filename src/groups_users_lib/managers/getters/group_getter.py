@@ -31,7 +31,10 @@ class GroupGetter:
         for data_row in data_list:
             data: list[str] = data_row.split(" ")
 
-            yield int(data[1]), data[0], data[2].split(",") if len(data) > 2 else []
+            if len(data) > 2:
+                yield int(data[1]), data[0], data[2].split(",") if data[2] != '' else []
+            else:
+                yield int(data[1]), data[0], []
 
     async def get_group(self, identification: int | str) -> tuple[int, str, list[str]]:
         """Obtain the groups from the shell in a list.

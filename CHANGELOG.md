@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 - @javierfh03 - Fix assignation of main group in users.
 - @javierfh03 - Fix get main groups.
+- @javierfh03 - Fix update user with new name.
 
 ## [0.1.2] - 2024-03-24
 ### Fixed
