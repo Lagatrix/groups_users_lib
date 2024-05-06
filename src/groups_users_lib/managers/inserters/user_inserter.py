@@ -33,7 +33,7 @@ class UserInserter:
         """
         try:
             await self._command_manager.execute_command(f"/sbin/useradd {name} -m -d {home} -s {shell}"
-                                                        f"{main_group if f' -g {main_group}' else ''}", True)
+                                                        f"{f' -g {main_group}' if main_group else ''}", True)
         except CommandError as command_error:
             if command_error.status_code == 6:
                 raise GroupNotExistError(name)

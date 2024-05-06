@@ -105,7 +105,7 @@ class UserManager:
         await self.__user_getter.get_user(name)
 
         if modify_user.main_group is not None:
-            await self.__user_modifier.modify_home(name, modify_user.main_group)
+            await self.__user_modifier.modify_main_group(name, modify_user.main_group)
 
         if modify_user.name is not None:
             await self.__user_modifier.modify_username(name, modify_user.name)
