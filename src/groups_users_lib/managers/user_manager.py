@@ -104,20 +104,20 @@ class UserManager:
         """
         await self.__user_getter.get_user(name)
 
-        if modify_user.main_group is not None:
-            await self.__user_modifier.modify_main_group(name, modify_user.main_group)
-
-        if modify_user.name is not None:
-            await self.__user_modifier.modify_username(name, modify_user.name)
-
         if modify_user.home is not None:
             await self.__user_modifier.modify_home(name, modify_user.home)
 
         if modify_user.shell is not None:
             await self.__user_modifier.modify_shell(name, modify_user.shell)
 
+        if modify_user.main_group is not None:
+            await self.__user_modifier.modify_main_group(name, modify_user.main_group)
+
         if password is not None:
-            await self.__user_modifier.modify_password(modify_user.name if modify_user.name else name, password)
+            await self.__user_modifier.modify_password(name, password)
+
+        if modify_user.name is not None:
+            await self.__user_modifier.modify_username(name, modify_user.name)
 
     async def delete_user(self, username: str) -> None:
         """Delete user of the system.
