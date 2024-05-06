@@ -72,7 +72,7 @@ class UserModifier:
             CommandError: If the exit code is not unexpected.
         """
         try:
-            await self._command_manager.execute_command(f"/sbin/usermod {name} -g {main_group}", True)
+            await self._command_manager.execute_command(f"/sbin/usermod -g {main_group} {name}", True)
         except CommandError as command_error:
             if command_error.status_code == 6:
                 raise GroupNotExistError(main_group)
