@@ -39,6 +39,31 @@ class GroupModifier:
                 raise GroupExistError(new_name)
             raise command_error
 
+    async def modify_users(self, group: str, users: list[str]) -> None:
+        """Modify the users of a group.
+
+        Args:
+            group: The group to modify.
+            users: The new users of the group.
+
+        Raises:
+            GroupPermissionError: If the user doesn't have permission to modify the group.
+            GroupNotExistError: If the group to modify doesn't exist.
+            UserNotExistError: If a user doesn't exist.
+            PrivilegesError: If the user doesn't have sudo privileges.
+            CommandError:  If the command return an unknown exit code.
+        """
+        try:
+            await self._command_manager.execute_command(f"/bin/gpasswd -M {','.join(users)} {group}", True)
+        except CommandError as command_error:
+            if command_error.status_code == 3:
+                if "/etc/group" in command_error.response:
+                    raise GroupNotExistError(group)
+                else:
+                    raise UserNotExistError(command_error.response[command_error.response.find("«") + 1:
+                                                                   command_error.response.find("»")])
+            raise command_error
+
     async def add_user_to_group(self, user: str, group: str) -> None:
         """Add a user to a group.
 

@@ -89,6 +89,9 @@ class GroupManager:
             ValueError: If the new group doesn't have a name.
             CommandError:  If the command return an unknown exit code.
         """
+        if new_group.users is not None:
+            await self.__group_modifier.modify_users(group, new_group.users)
+
         if new_group.name is not None:
             await self.__group_modifier.modify_name(group, new_group.name)
         else:

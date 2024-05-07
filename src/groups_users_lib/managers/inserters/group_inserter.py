@@ -41,6 +41,7 @@ class GroupInserter:
             if command_error.status_code == 9:
                 raise GroupExistError(name)
             elif command_error.status_code == 10:
-                raise UserNotExistError(command_error.response.split(" ")[3])
+                error: list[str] = command_error.response.split(" ")
+                raise UserNotExistError(error[8] if len(error) > 7 else 'added in group')
 
             raise command_error

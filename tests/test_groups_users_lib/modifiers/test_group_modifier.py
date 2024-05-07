@@ -73,3 +73,26 @@ class TestGroupModifier(unittest.IsolatedAsyncioTestCase):
         with mock.patch(mock_command_executor_method, side_effect=CommandError(9, "Unknown error")):
             with self.assertRaises(CommandError):
                 await self.group_modifier.remove_user_from_group("javier", "juan")
+
+    async def test_modify_users_in_group(self) -> None:
+        """Test correctly functioning when modify users in group."""
+        with mock.patch(mock_command_executor_method, return_value=[]):
+            await self.group_modifier.modify_users("javier", ["juan", "pedro"])
+
+    async def test_modify_users_in_not_existent_group_error(self) -> None:
+        """Test error when modify users in group returns group not exist error."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(3, "Group not exist in /etc/group")):
+            with self.assertRaises(GroupNotExistError):
+                await self.group_modifier.modify_users("javier", ["juan", "pedro"])
+
+    async def test_modify_users_in_not_existent_user_error(self) -> None:
+        """Test error when modify users in group returns user not exist error."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(3, "User not exist")):
+            with self.assertRaises(UserNotExistError):
+                await self.group_modifier.modify_users("javier", ["juan", "pedro"])
+
+    async def test_modify_users_in_group_unknown_error(self) -> None:
+        """Test error when modify users in group returns non excepted error."""
+        with mock.patch(mock_command_executor_method, side_effect=CommandError(7, "Unknown error")):
+            with self.assertRaises(CommandError):
+                await self.group_modifier.modify_users("javier", ["juan", "pedro"])
