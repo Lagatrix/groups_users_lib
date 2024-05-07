@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - @javierfh03 - Fix get main groups.
 - @javierfh03 - Fix update user with new name.
 - @javierfh03 - Fix ghost users in groups.
+- @javierfh03 - Fix empty users list bug.
 ### Changed
 - @javierfh03 - Can change users in group.
 

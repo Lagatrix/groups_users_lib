@@ -65,7 +65,7 @@ class UserManager:
                 name=user_tuple[1],
                 shell=user_tuple[2], # noqa
                 home=user_tuple[3],
-                main_group=(await self.__group_getter.get_group(user_tuple[0]))[1]
+                main_group=(await self.__group_getter.get_group(user_tuple[4]))[1]
             )
 
     async def add_user(self, user: User) -> None:

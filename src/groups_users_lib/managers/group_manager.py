@@ -71,10 +71,10 @@ class GroupManager:
             PrivilegesError: If the user doesn't have sudo privileges.
             CommandError: If the command return an unknown exit code.
         """
-        if group.name and group.users is not None:
+        if group.name is not None:
             await self.__group_inserter.add_group(group.name, group.users)
         else:
-            raise ValueError("The new group must have a name and user list.")
+            raise ValueError("The new group must have a name.")
 
     async def edit_group(self, group: str, new_group: Group) -> None:
         """Edit the name of a group in the shell.
